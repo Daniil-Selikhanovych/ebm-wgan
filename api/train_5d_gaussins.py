@@ -12,7 +12,7 @@ from torch.autograd import Variable
 from torch import autograd
 
 from paths import path_to_save
-from utils import prepare_swissroll_data, prepare_train_batches
+from utils import prepare_gaussians, prepare_train_batches
 from wgan_fully_connected_models import (Generator_fully_connected,
                                          Discriminator_fully_connected,
                                          weights_init_1, weights_init_2)
@@ -23,14 +23,20 @@ torch.manual_seed(42)
 np.random.seed(42)
 random.seed(42)
 
-train_dataset_size = 100000
 BATCH_SIZE = 256            
-X_train = prepare_swissroll_data(train_dataset_size)
+num_samples_in_cluster = 1000
+dim = 5
+num_gaussian_per_dim = 3
+coord_limits = 4.0
+std = 0.05
+X_train = prepare_gaussians(num_samples_in_cluster, dim, 
+                            num_gaussian_per_dim, coord_limits, 
+                            std)
 X_train_batches = prepare_train_batches(X_train, BATCH_SIZE) 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-G = Generator_fully_connected(n_dim = 2).to(device)
-D = Discriminator_fully_connected().to(device)
+G = Generator_fully_connected(n_dim = 5, n_output = 5).to(device)
+D = Discriminator_fully_connected(n_in = 5).to(device)
 G.apply(weights_init_2)
 D.apply(weights_init_2)
 
@@ -41,9 +47,11 @@ use_gradient_penalty = True
 Lambda = 0.1
 num_epochs = 20000
 num_epoch_for_save = 500
-batch_size_sample = 5000     
+batch_size_sample = 5000
+proj_list = [[0, 1], [2, 3], [0, 4]]     
 
 print("Start to train WGAN")
+
 train_wgan(X_train,
            X_train_batches, 
            G, g_optimizer, 
@@ -55,5 +63,5 @@ train_wgan(X_train,
            Lambda,
            num_epochs, 
            num_epoch_for_save,
-           batch_size_sample)
-
+           batch_size_sample,
+           proj_list)

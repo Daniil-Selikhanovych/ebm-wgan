@@ -7,7 +7,7 @@ import time
 import datetime
 import os
 
-from utils import prepare_train_batches, visualization
+from utils import prepare_train_batches, epoch_visualization
 
 torch.manual_seed(42)
 np.random.seed(42)
@@ -47,7 +47,8 @@ def train_wgan(X_train,
                Lambda = 0.1,
                num_epochs = 20000, 
                num_epoch_for_save = 100,
-               batch_size_sample = 5000):
+               batch_size_sample = 5000,
+               proj_list = None):
 
     k_g = 1
     generator_loss_arr = []
@@ -144,13 +145,14 @@ def train_wgan(X_train,
                    generator_mean_loss_arr[-1])) 
             if epoch % num_epoch_for_save == 0:
                # Visualize
-               visualization(X_train, generator, 
-                             use_gradient_penalty, 
-                             discriminator_mean_loss_arr, 
-                             epoch, Lambda,
-                             generator_mean_loss_arr, 
-                             path_to_save_plots,
-                             batch_size_sample)
+               epoch_visualization(X_train, generator, 
+                                   use_gradient_penalty, 
+                                   discriminator_mean_loss_arr, 
+                                   epoch, Lambda,
+                                   generator_mean_loss_arr, 
+                                   path_to_save_plots,
+                                   batch_size_sample,
+                                   proj_list)
                cur_time = datetime.datetime.now().strftime('%Y_%m_%d-%H_%M_%S')
 
                discriminator_model_name = cur_time + '_discriminator.pth'

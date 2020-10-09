@@ -13,7 +13,9 @@ from torch import autograd
 
 from paths import path_to_save
 from utils import prepare_25gaussian_data, prepare_train_batches
-from wgan_2d_models import Generator_2d, Discriminator_2d, weights_init_1, weights_init_2
+from wgan_fully_connected_models import (Generator_fully_connected, 
+                                         Discriminator_fully_connected, 
+                                         weights_init_1, weights_init_2)
 from wgan_train import train_wgan
 
 
@@ -27,8 +29,8 @@ X_train = prepare_25gaussian_data(train_dataset_size)
 X_train_batches = prepare_train_batches(X_train, BATCH_SIZE) 
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-G = Generator_2d(n_dim = 2).to(device)
-D = Discriminator_2d().to(device)
+G = Generator_fully_connected(n_dim = 2).to(device)
+D = Discriminator_fully_connected().to(device)
 G.apply(weights_init_2)
 D.apply(weights_init_2)
 
@@ -42,7 +44,6 @@ num_epoch_for_save = 500
 batch_size_sample = 5000     
 
 print("Start to train WGAN")
-
 train_wgan(X_train,
            X_train_batches, 
            G, g_optimizer, 
